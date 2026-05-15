@@ -1,40 +1,54 @@
-# Phishing Email Detection Model
+# 🛡️ Phishing Email Detector
 
-A machine learning based phishing email detector built using Python, Scikit-learn, and Streamlit.
+An AI-powered phishing email detection system built using **Python**, **Scikit-learn**, and **Streamlit**.
 
-## Features
+This project combines **Machine Learning** and **Rule-Based Security Checks** to identify phishing emails and suspicious content with confidence scores and risk indicators.
 
-- Detects phishing and safe emails
-- Uses TF-IDF + ML classification
-- Rule-based URL detection
-- Displays:
-  - Accuracy
-  - Confusion Matrix
-  - Classification Report
-- Streamlit web interface
+---
 
-## Dataset
+# 🚀 Features
 
-CEAS_08 Email Dataset
+- 🔍 Detects phishing and safe emails
+- 🤖 Machine Learning based classification
+- 🛡️ Rule-based phishing detection
+- 📊 Confidence score prediction
+- ⚠️ Risk indicator analysis
+- 📁 Upload email text files
+- 🌙 Modern Streamlit dark UI
+- 📈 Dashboard support
+- 🔗 Suspicious URL detection
 
-## Technologies Used
+---
+
+# 🧠 Technologies Used
 
 - Python
-- Scikit-learn
 - Streamlit
-- Pandas
+- Scikit-learn
 - NumPy
+- Pandas
+- Matplotlib
+- Joblib
 
-## Run Project
+---
 
-Install dependencies:
+# 📂 Project Structure
 
-pip install -r requirements.txt
-
-Train model:
-
-python train_model.py
-
-Run web app:
-
-streamlit run web_app.py# Phishing-Email-Detector
+```bash
+Phishing-Email-Detector/
+│
+├── web_app.py
+├── train_model.py
+├── utils.py
+├── requirements.txt
+├── README.md
+│
+├── model.pkl
+├── tfidf.pkl
+├── scaler.pkl
+│
+├── accuracy.pkl
+├── conf_matrix.pkl
+├── report.txt
+│
+└── CEAS_08.csv
