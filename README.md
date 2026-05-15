@@ -52,3 +52,49 @@ Phishing-Email-Detector/
 ├── report.txt
 │
 └── CEAS_08.csv
+```
+---
+#📊 Dataset
+
+Dataset used:
+
+* CEAS_08 Email Dataset
+
+The dataset contains phishing and legitimate emails used for training and testing the machine learning model.
+---
+#⚙️ Installation
+
+Clone the repository:
+```Bash
+git clone https://github.com/SandeepRathod21/Phishing-Email-Detector.git
+```
+#Move into project folder:
+```Bash
+cd Phishing-Email-Detector
+```
+#Install dependencies:
+```Bash
+pip install -r requirements.txt
+```
+---
+#🏋️ Train the Model
+
+Run:
+```Bash
+python train_model.py
+```
+This generates:
+
+* model.pkl
+* tfidf.pkl
+* scaler.pkl
+--- 
+#▶️ Run the Application
+
+Start Streamlit app:
+```Bash
+stramlit run web_app.py
+```
+---
+
+
