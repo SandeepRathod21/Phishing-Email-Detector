@@ -35,16 +35,7 @@ def extract_features(text):
 
 def check_urls(text):
     urls = re.findall(r"http[s]?://\S+", text)
-    suspicious = 0
-    for u in urls:
-        if any(pattern in u for pattern in [
-            "login", "verify", "usp=sharing", "usp=share",
-            "docs.google.com/file", "docs.google.com/document",
-            "drive.google.com/file", "bit.ly", "tinyurl",
-            "shorturl", "tiny.cc"
-        ]):
-            suspicious += 1
-    return suspicious
+    return sum("login" in u or "verify" in u for u in urls)
 
 def analyze_headers(raw_email):
     try:

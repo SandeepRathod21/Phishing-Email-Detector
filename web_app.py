@@ -1,73 +1,94 @@
 import streamlit as st
 import joblib
 import numpy as np
-import re
+import matplotlib.pyplot as plt
 
-# LOAD MODELS
+from utils import clean_text, extract_features, check_urls, analyze_headers
+
+# LOAD
+model = joblib.load("model.pkl")
 tfidf = joblib.load("tfidf.pkl")
 scaler = joblib.load("scaler.pkl")
-model = joblib.load("model.pkl")
 
-# CLEAN TEXT
-def clean_text(text):
-    text = str(text).lower()
-    text = re.sub(r"http\S+", "", text)
-    text = re.sub(r"[^a-zA-Z0-9 ]", "", text)
-    return text
-
-# EXTRA FEATURES
-def extract_features(text):
-    text = str(text)
-
-    num_links = text.count("http")
-    num_digits = sum(c.isdigit() for c in text)
-    num_special = sum(not c.isalnum() and not c.isspace() for c in text)
-    length = len(text)
-
-    return [num_links, num_digits, num_special, length]
-
-# PREDICT FUNCTION
 def predict(text):
-
-    clean = clean_text(text)
-
-    # TFIDF
-    vec = tfidf.transform([clean]).toarray()
-
-    # EXTRA FEATURES
+    vec = tfidf.transform([clean_text(text)]).toarray()
     extra = np.array([extract_features(text)])
 
-    # COMBINE
-    combined = np.hstack([vec, extra])
+    X = np.hstack([vec, extra])
+    X = scaler.transform(X)
 
-    # SCALE
-    scaled = scaler.transform(combined)
+    pred = model.predict(X)[0]
+    prob = model.predict_proba(X)[0]
 
-    # PREDICT
-    prediction = model.predict(scaled)[0]
+    label = "PHISHING" if pred == 1 else "SAFE"
+    conf = round(float(prob[pred]) * 100, 2)
 
-    # CONFIDENCE
-    confidence = model.predict_proba(scaled)[0]
+    # RULE LAYER
+    if check_urls(text) > 0 or analyze_headers(text) >= 2:
+        label = "PHISHING"
+        conf = max(conf, 85)
 
-    return prediction, confidence
+    return label, conf
 
 # UI
-st.title("Phishing Email Detector")
+st.set_page_config(page_title="Phishing Detector", page_icon="📧")
 
-text = st.text_area("Paste email content here")
+st.markdown("## 📧 Phishing Email Detector")
+st.markdown("#### 🔐 AI + Rule-Based Security Engine")
 
+text = st.text_area("Paste Email Content", height=250)
+
+uploaded_file = st.file_uploader("Upload email file")
+
+if uploaded_file:
+    text = uploaded_file.read().decode()
+
+# ANALYZE
 if st.button("Analyze"):
-
-    if text.strip() == "":
-        st.warning("Please enter email text.")
-    else:
-
+    if text:
         label, conf = predict(text)
 
-        if label == 1:
-            st.error("Phishing Email Detected")
+        if label == "PHISHING":
+            st.error(f"🚨 PHISHING ({conf}%)")
+            st.warning("⚠️ Suspicious links or urgency patterns detected")
         else:
-            st.success("Legitimate Email")
+            st.success(f"✅ SAFE ({conf}%)")
+            st.info("No strong phishing indicators detected")
 
-        st.write("Confidence:")
-        st.write(conf)
+        # EXPLAINABILITY
+        features = extract_features(text)
+        st.write("### 🔍 Risk Indicators")
+        st.write({
+            "Has URL": features[0],
+            "Urgent words": features[1],
+            "Verify/Confirm": features[2] + features[3],
+            "Click/Login": features[6] + features[4],
+            "Risk score": features[8]
+        })
+
+    else:
+        st.warning("Enter email text")
+
+# DASHBOARD
+if st.button("📊 Show Dashboard"):
+    acc = joblib.load("accuracy.pkl")
+    cm = joblib.load("conf_matrix.pkl")
+
+    st.subheader("📊 Model Performance")
+    st.success(f"Accuracy: {round(acc*100,2)}%")
+
+    fig, ax = plt.subplots()
+    ax.imshow(cm)
+
+    for i in range(len(cm)):
+        for j in range(len(cm)):
+            ax.text(j, i, cm[i][j], ha="center", va="center")
+
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("Actual")
+    ax.set_title("Confusion Matrix")
+
+    st.pyplot(fig)
+
+    with open("report.txt") as f:
+        st.text(f.read())
