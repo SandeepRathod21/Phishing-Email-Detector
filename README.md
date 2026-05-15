@@ -94,7 +94,7 @@ python train_model.py
 
 Start Streamlit app:
 ```Bash
-streamlit run web_app.py
+python -m streamlit run web_app.py
 ```
 ---
 # 👨‍💻 Author
